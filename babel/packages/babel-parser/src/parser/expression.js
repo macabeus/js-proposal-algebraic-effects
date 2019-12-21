@@ -464,6 +464,8 @@ export default class ExpressionParser extends LValParser {
   parseMaybeUnary(refShorthandDefaultPos: ?Pos): N.Expression {
     if (this.isContextual("await") && this.isAwaitAllowed()) {
       return this.parseAwait();
+    } else if (this.isContextual("perform")) {
+      return this.parsePerform();
     } else if (this.state.type.prefix) {
       const node = this.startNode();
       const update = this.match(tt.incDec);
@@ -2273,6 +2275,23 @@ export default class ExpressionParser extends LValParser {
     }
 
     return this.finishNode(node, "AwaitExpression");
+  }
+
+  parsePerform(): N.PerformExpression {
+    const node = this.startNode();
+
+    this.next();
+
+    if (this.state.inParameters) {
+      this.raise(
+        node.start,
+        "perform is not allowed in async function parameters",
+      );
+    }
+
+    node.argument = this.parseMaybeUnary();
+
+    return this.finishNode(node, "PerformExpression");
   }
 
   // Parses yield expression inside generator.

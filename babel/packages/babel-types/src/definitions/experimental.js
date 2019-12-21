@@ -269,3 +269,14 @@ defineType("BigIntLiteral", {
   },
   aliases: ["Expression", "Pureish", "Literal", "Immutable"],
 });
+
+defineType("PerformExpression", {
+  builder: ["argument"],
+  visitor: ["argument"],
+  aliases: ["Expression", "Terminatorless"],
+  fields: {
+    argument: {
+      validate: assertNodeType("Expression"),
+    },
+  },
+});
