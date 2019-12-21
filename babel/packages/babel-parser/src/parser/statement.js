@@ -190,6 +190,8 @@ export default class StatementParser extends ExpressionParser {
 
       case tt._if:
         return this.parseIfStatement(node);
+      case tt._resume:
+        return this.parseResumeStatement(node);
       case tt._return:
         return this.parseReturnStatement(node);
       case tt._switch:
@@ -565,6 +567,14 @@ export default class StatementParser extends ExpressionParser {
     node.consequent = this.parseStatement("if");
     node.alternate = this.eat(tt._else) ? this.parseStatement("if") : null;
     return this.finishNode(node, "IfStatement");
+  }
+
+  parseResumeStatement(node: N.ResumeStatement): N.ResumeStatement {
+    this.next();
+
+    node.argument = this.parseMaybeUnary();
+
+    return this.finishNode(node, "ResumeStatement");
   }
 
   parseReturnStatement(node: N.ReturnStatement): N.ReturnStatement {

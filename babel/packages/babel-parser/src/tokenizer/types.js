@@ -172,6 +172,7 @@ export const types: { [name: string]: TokenType } = {
   _function: createKeyword("function", { startsExpr }),
   _handle: createKeyword("handle"),
   _if: createKeyword("if"),
+  _resume: createKeyword("resume"),
   _return: createKeyword("return", { beforeExpr }),
   _switch: createKeyword("switch"),
   _throw: createKeyword("throw", { beforeExpr, prefix, startsExpr }),
