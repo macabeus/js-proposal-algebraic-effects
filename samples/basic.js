@@ -6,3 +6,13 @@ function getName(user) {
 
   console.log(name)
 }
+
+const arya = { name: null };
+const gendry = { name: 'Gendry' };
+
+try {
+  getName(arya);
+  getName(gendry);
+} handle {
+  console.log(effect)
+}
