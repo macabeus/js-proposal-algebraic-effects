@@ -16,3 +16,10 @@
 > make bootstrap
 > make watch
 ```
+
+3 - So you could run the example with:
+
+```
+> cd babel-algebraic-effects
+> yarn start
+```
