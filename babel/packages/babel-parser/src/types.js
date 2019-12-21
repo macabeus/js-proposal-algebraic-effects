@@ -566,6 +566,7 @@ export type ConditionalExpression = NodeBase & {
 export type CallOrNewBase = NodeBase & {
   callee: Expression | Super | Import,
   arguments: Array<Expression | SpreadElement>, // TODO: $ReadOnlyArray
+  injectEffects?: boolean,
   typeArguments: ?TypeParameterInstantiationBase,
   typeParameters?: ?TypeParameterInstantiationBase, // TODO: Not in spec
 };

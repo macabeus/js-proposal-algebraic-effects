@@ -573,6 +573,8 @@ export default class ExpressionParser extends LValParser {
     noCalls: ?boolean,
     state: N.ParseSubscriptState,
   ): N.Expression {
+    const injectEffects = this.eat(tt.atat);
+
     if (!noCalls && this.eat(tt.doubleColon)) {
       const node = this.startNodeAt(startPos, startLoc);
       node.object = base;
@@ -653,6 +655,8 @@ export default class ExpressionParser extends LValParser {
 
       let node = this.startNodeAt(startPos, startLoc);
       node.callee = base;
+
+      node.injectEffects = injectEffects;
 
       node.arguments = this.parseCallExpressionArguments(
         tt.parenR,

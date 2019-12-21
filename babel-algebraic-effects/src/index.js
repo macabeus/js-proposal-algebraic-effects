@@ -42,6 +42,39 @@ traverse.default(ast, {
     path.parentPath.replaceWith(returnArgs)
   },
 
+  CallExpression(path) {
+    const { node } = path
+
+    if (!node.injectEffects) {
+      return
+    }
+
+    const calleeBind = (
+      t.memberExpression(
+        t.Identifier(node.callee.name),
+        t.Identifier('bind')
+      )
+    ) // calle.bind
+
+    const calleeBindCallThis = (
+      t.callExpression(
+        calleeBind,
+        [
+          t.Identifier('this')
+        ]
+      )
+    ) // calle.bind(this)
+
+    const calleeBindCallThisCallArgs = (
+      t.callExpression(
+        calleeBindCallThis,
+        node.arguments
+      )
+    ) // calle.bind(this)(args)
+
+    path.replaceWith(calleeBindCallThisCallArgs)
+  },
+
   TryStatement(path) {
     const { scope, node } = path
 

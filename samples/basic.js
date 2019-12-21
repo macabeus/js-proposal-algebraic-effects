@@ -4,15 +4,20 @@ function getName(user) {
     name = perform 'ask_name';
   }
 
-  console.log(name)
+  return name;
+}
+
+function displayNameCapitalized(user) {
+  const name = getName@@(user)
+  console.log(name.toUpperCase())
 }
 
 const arya = { name: null };
 const gendry = { name: 'Gendry' };
 
 try {
-  getName(arya);
-  getName(gendry);
+  displayNameCapitalized(arya);
+  displayNameCapitalized(gendry);
 } handle {
   if (effect === 'ask_name') {
     resume 'Arya Stark';
