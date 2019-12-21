@@ -30,6 +30,18 @@ traverse.default(ast, {
     path.replaceWith(thisHandleCall)
   },
 
+  ResumeStatement(path) {
+    const { node } = path
+
+    const returnArgs = (
+      t.returnStatement(
+        node.argument
+      )
+    ) // return args
+
+    path.parentPath.replaceWith(returnArgs)
+  },
+
   TryStatement(path) {
     const { scope, node } = path
 

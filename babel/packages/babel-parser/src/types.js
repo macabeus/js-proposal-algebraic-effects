@@ -210,6 +210,11 @@ export type WithStatement = NodeBase & {
   body: Statement,
 };
 
+export type ResumeStatement = NodeBase & {
+  type: "ResumeStatement",
+  argument: ?Expression,
+};
+
 export type ReturnStatement = NodeBase & {
   type: "ReturnStatement",
   argument: ?Expression,

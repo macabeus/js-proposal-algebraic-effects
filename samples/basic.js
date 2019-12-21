@@ -14,5 +14,7 @@ try {
   getName(arya);
   getName(gendry);
 } handle {
-  console.log(effect)
+  if (effect === 'ask_name') {
+    resume 'Arya Stark';
+  }
 }

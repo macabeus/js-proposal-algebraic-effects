@@ -280,3 +280,14 @@ defineType("PerformExpression", {
     },
   },
 });
+
+defineType("ResumeStatement", {
+  builder: ["argument"],
+  visitor: ["argument"],
+  aliases: ["Expression", "Terminatorless"],
+  fields: {
+    argument: {
+      validate: assertNodeType("Expression"),
+    },
+  },
+});
