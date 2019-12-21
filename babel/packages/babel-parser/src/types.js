@@ -384,6 +384,11 @@ export type AwaitExpression = NodeBase & {
   argument: ?Expression,
 };
 
+export type PerformExpression = NodeBase & {
+  type: "PerformExpression",
+  argument: ?Expression,
+};
+
 export type ArrayExpression = NodeBase & {
   type: "ArrayExpression",
   elements: $ReadOnlyArray<?(Expression | SpreadElement)>,
