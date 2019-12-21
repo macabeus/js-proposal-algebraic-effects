@@ -1,0 +1,13 @@
+{
+  "name": "@babel/preset-stage-2",
+  "version": "7.0.0",
+  "description": "Babel preset for stage 2 plugins",
+  "author": "Sebastian McKenzie <sebmck@gmail.com>",
+  "homepage": "https://babeljs.io/",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "https://github.com/babel/babel/tree/master/packages/babel-preset-stage-2",
+  "main": "lib/index.js"
+}
