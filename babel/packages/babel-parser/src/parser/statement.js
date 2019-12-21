@@ -680,10 +680,11 @@ export default class StatementParser extends ExpressionParser {
       node.handler = this.finishNode(clause, "CatchClause");
     }
 
+    node.handleEffects = this.eat(tt._handle) ? this.parseBlock() : null;
     node.finalizer = this.eat(tt._finally) ? this.parseBlock() : null;
 
-    if (!node.handler && !node.finalizer) {
-      this.raise(node.start, "Missing catch or finally clause");
+    if (!node.handler && !node.handleEffects && !node.finalizer) {
+      this.raise(node.start, "Missing catch, handle or finally clause");
     }
 
     return this.finishNode(node, "TryStatement");
