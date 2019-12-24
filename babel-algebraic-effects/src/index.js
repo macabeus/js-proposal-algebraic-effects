@@ -124,15 +124,16 @@ traverse.default(ast, {
   PerformExpression(path) {
     const { scope, node } = path
 
-    // TODO: It doesn't work if the perform expression is nested deeper than two levels
+    // Copy the rest of the code after perform expression
+    // TODO: This code is ungly and it doesn't work if the perform expression is nested deeper than two levels
     const indexCurrentNodeAtBody = path.getStatementParent().container.findIndex(i => i.start > node.end)
     const nodesAfterHere = (
-      path.parentPath.parentPath.getAllNextSiblings().length === 0
+      path.parentPath.parentPath.getAllNextSiblings().length === 0 && path.parentPath.getAllNextSiblings().length === 0
         ? []
         : path.getStatementParent().container.slice(indexCurrentNodeAtBody)
     )
     const nodesAfterHereUpperScope = (
-      (path.getFunctionParent() === null || path.getAncestry().length === 6)
+      (path.getFunctionParent() === null || path.getAncestry().length === 6 || path.getAncestry().length === 5)
         ? []
         : (() => {
           const indexCurrentNodeAtUpperScope = path.getFunctionParent().node.body.body.findIndex(i => i.start > node.start)
@@ -144,28 +145,53 @@ traverse.default(ast, {
       ...nodesAfterHereUpperScope
     ]
 
-    // TODO: it only work if perform expression is be using with a assignment expression
-    const continueHandle = (
+    // Replace perform expression with a call to this.handle
+    const continueHandle = args => (
       t.arrowFunctionExpression(
-        [t.identifier(path.parentPath.node.left.name)],
+        args,
         t.blockStatement(copiedRestOfBody)
       )
     ) // (var) => { ... }
 
-    const thisHandleCall = (
+    const thisHandleCall = args => (
       t.callExpression(
         thisMember('handle'),
         [
           node.argument,
-          continueHandle
+          continueHandle(args)
         ]
       )
     ) // this.handle(args)
 
-    path.parentPath.replaceWithMultiple([
-      thisHandleCall,
-      t.returnStatement()
-    ])
+    const mapPerformExpressionWhenInsideOf = {
+      AssignmentExpression: () => {
+        path.parentPath.replaceWithMultiple([
+          thisHandleCall([path.parentPath.node.left]),
+          t.returnStatement()
+        ])
+      },
+
+      ExpressionStatement: () => {
+        path.replaceWithMultiple([
+          thisHandleCall([]),
+          t.returnStatement()
+        ])
+      },
+
+      VariableDeclarator: () => {
+        path.parentPath.parentPath.replaceWithMultiple([
+          thisHandleCall([path.parentPath.node.id]),
+          t.returnStatement()
+        ])
+      }
+    }
+
+    const performCanBeUsedAt = Object.keys(mapPerformExpressionWhenInsideOf)
+    if (performCanBeUsedAt.includes(path.parentPath.node.type) === false) {
+      throw new TypeError(`Perform Expression only can be used with [${performCanBeUsedAt.join(',')}], but where as used with "${path.parentPath.node.type}"`)
+    }
+
+    mapPerformExpressionWhenInsideOf[path.parentPath.node.type]()
   },
 
   ResumeStatement(path) {
