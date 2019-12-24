@@ -30,7 +30,7 @@ You could use this keyword inside of any function (not arrow functions!) in orde
 Similar to `throw`, it'll search for the closest `try/handle` at call stack to perform an effect passing `<value>` as the effect name. Unlike `throw`, `perform` is an expression and will return a value.
 
 ```js
-if (name === nulll) {
+if (name === null) {
  name = perform 'ask_name'
 }
 ```
