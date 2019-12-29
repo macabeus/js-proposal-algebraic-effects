@@ -126,9 +126,9 @@ const traverseStateMachine = (scope, node, block, splitWhen, state) => {
     }
   })
 
-  // TODO: initializer e cases só funcionam corretamente apenas se for usado assignment expressions na chamada da função com efeito
-  // TODO: não funcionará corretamente se tiver blocos aninhados
-  const initializer = ( // TODO: Precisa funcionar em casos em que o splitBodyForStates[0].length seja diferente de 1
+  // TODO: `initializer` and `cases` only work correctly if `assignmentExpression` is used on the call of the function with effect
+  // TODO: will not work correctly if it has aligned blocks
+  const initializer = ( // TODO: Needs to work on cases that `splitBodyForStates[0].length` is different than 1
     splitBodyForStates[0][0].expression.right
   )
   const cases = (
