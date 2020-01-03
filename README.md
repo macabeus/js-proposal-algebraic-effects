@@ -3,7 +3,7 @@
 > 📐Let there be algebraic effects in JavaScript
 
 <p align="center">
-  <img src="https://i.imgur.com/daBFyR1.png">
+  <img src="https://i.imgur.com/OfAmREf.png">
 </p>
  
 # Why?
@@ -27,22 +27,24 @@ Again, the syntax needs to be improved. But at this moment we have:
 - **Expression `perform <value>`**
 
 You could use this keyword inside of any function (not arrow functions!) in order to launch an effect.<br />
-Similar to `throw`, it'll search for the closest `try/handle` at call stack to perform an effect passing `<value>` as the effect name. Unlike `throw`, `perform` is an expression and will return a value.
+Similar to `throw`, it'll search for the closest `try/handle` at call stack to perform an effect passing `<value>` as the effect name. Unlike `throw`, `perform` is an expression and will return a value to continue running the code.
 
 ```js
 if (name === null) {
  name = perform 'ask_name'
+ console.log(name) // after evaluate perform, will run this line
 }
 ```
 
 - **Block `handle` at `try`**
 
-Just like the `catch` block, you should use it to handle the effect launched inside of the `try` block. In the scope of `handle`, it is implicitly injected a variable called `effect`, with the `<value>` from `perform`.
+Just like the `catch` block, you should use it to handle the effect launched inside of the `try` block.<br />
+And again as like `catch` block, this block has a parameter to bind the `<value>` used at `perform`.
 
 ```js
 try {
  ...
-} handle {
+} handle (effect) {
  if (effect === 'ask_name') {
    ...
  }
@@ -51,11 +53,16 @@ try {
 
 - **Statement `resume`**
 
-It should be used inside of the `handle` block in order to resume the `perform` expression, returning a value.
+It should be used inside of the `handle` block in order to resume the `perform` expression, returning a value.<br />
+It must be used inside of `handle` block and must be in `handle` block directly.
 
 ```js
-if (effect === 'ask_name') {
- resume 'Arya Stark'
+try {
+ ...
+} handle (effect) {
+ if (effect === 'ask_name') {
+  resume 'Arya Stark'
+ }
 }
 ```
 
@@ -63,9 +70,8 @@ One of its most powerful features is to use inside a block with an async operati
 
 ```js
 if (effect === 'ask_name') {
- setTimeout(() => {
-   resume 'Arya Stark';
- }, 1000);
+ await wait(1000)
+ resume 'Arya Stark'
 }
 ```
 
@@ -92,8 +98,75 @@ const arya = { name: null };
 
 try {
  displayNameCapitalized(arya); // doesn't need to use @@
-} handle {
+} handle (effect) {
  ...
+}
+```
+
+### Edge cases
+
+- no `resume`
+
+Since `perform` is an expression, it always return a value. If `resume` wasn't called after a perform, it'll be `undefined`:
+
+```js
+function sayName () {
+ const name = perform 'a_typo_error'
+ console.log(name) // undefined 
+}
+
+try {
+ sayName()
+} handle (effect) {
+ if (effect === 'ask_name') {
+  resume 'Arya Stark'
+ }
+}
+```
+
+- no `try/handle` block
+
+If a `perform` is called without a `try/handle`, an expection will be launched.
+
+```js
+function sayName () {
+ const name = perform 'ask_name' // will throw Error('Unhandled effect')
+ console.log(name)
+}
+
+sayName()
+```
+
+- nested `try/handle` (not implemented yet)
+
+If you have two or more nested `try/handle`, you'll need to call `resume` on `handle` block
+
+```js
+function sayNameAndAge () {
+ const name = perform 'ask_name'
+ const age = perform 'ask_age'
+ console.log(name, age) // 'Arya Stark 25'
+}
+
+function wrapperAgeEffect () {
+ try {
+  sayNameAndAge()
+ } handle (effect) {
+  if (effect === 'ask_age') {
+   resume 25
+  }
+
+  const result = perform effect
+  return result
+ }
+}
+
+try {
+ wrapperAgeEffect()
+} handle (effect) {
+ if (effect === 'ask_name') {
+  resume 'Arya Stark'
+ }
 }
 ```
 
