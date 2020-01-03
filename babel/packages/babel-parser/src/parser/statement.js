@@ -690,7 +690,19 @@ export default class StatementParser extends ExpressionParser {
       node.handler = this.finishNode(clause, "CatchClause");
     }
 
-    node.handleEffects = this.eat(tt._handle) ? this.parseBlock() : null;
+    node.handleEffects = null;
+    if (this.eat(tt._handle)) {
+      const clause = this.startNode();
+      this.next();
+
+      clause.param = this.parseBindingAtom();
+      this.next();
+
+      clause.body = this.parseBlock();
+      this.scope.exit();
+
+      node.handleEffects = this.finishNode(clause, "HandleEffectClause");
+    }
     node.finalizer = this.eat(tt._finally) ? this.parseBlock() : null;
 
     if (!node.handler && !node.handleEffects && !node.finalizer) {

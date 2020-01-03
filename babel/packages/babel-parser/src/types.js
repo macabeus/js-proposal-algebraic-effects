@@ -267,13 +267,19 @@ export type ThrowStatement = NodeBase & {
 export type TryStatement = NodeBase & {
   type: "TryStatement",
   block: BlockStatement,
-  handleEffects: BlockStatement | null,
+  handleEffects: HandleEffectClause | null,
   handler: CatchClause | null,
   finalizer: BlockStatement | null,
 };
 
 export type CatchClause = NodeBase & {
   type: "CatchClause",
+  param: Pattern,
+  body: BlockStatement,
+};
+
+export type HandleEffectClause = NodeBase & {
+  type: "HandleEffectClause",
   param: Pattern,
   body: BlockStatement,
 };

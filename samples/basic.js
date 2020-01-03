@@ -22,7 +22,7 @@ try {
   const gendryName = displayNameCapitalized(gendry);
   console.log('Arya name:', aryaName)
   console.log('Gendry name:', gendryName)
-} handle {
+} handle (effect) {
   if (effect === 'ask_name') {
     setTimeout(() => {
       resume 'Arya Stark';
