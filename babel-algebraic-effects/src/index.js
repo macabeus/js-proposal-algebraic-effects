@@ -325,6 +325,13 @@ traverse.default(ast, {
     )
 
     // Nested traverse to evaluate the resume statement inside of handle method
+    const callNextWithArgs = args => (
+      t.callExpression(
+        t.identifier('next'),
+        args ? [args] : []
+      )
+    ) // next(args)
+
     path.traverse({
       ObjectProperty(path) {
         const { node } = path
@@ -347,15 +354,16 @@ traverse.default(ast, {
           ResumeStatement(path) {
             const { node } = path
 
-            const callNextWithArgs = (
-              t.callExpression(
-                t.identifier('next'),
-                [node.argument]
-              )
-            ) // next(args)
-
-            path.replaceWith(callNextWithArgs)
+            path.replaceWith(callNextWithArgs(node.argument))
+            path.parentPath.insertAfter(t.returnStatement())
           },
+        })
+
+        path.traverse({
+          BlockStatement(path) {
+            path.get('body')[0].insertAfter(callNextWithArgs())
+            path.stop()
+          }
         })
 
         path.stop()
