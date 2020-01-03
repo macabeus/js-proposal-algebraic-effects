@@ -197,14 +197,7 @@ traverse.default(ast, {
   ResumeStatement(path) {
     const { node } = path
 
-    const callNextWithArgs = (
-      t.callExpression(
-        t.identifier('next'),
-        [node.argument]
-      )
-    ) // next(args)
-
-    path.parentPath.replaceWith(callNextWithArgs)
+    throw new TypeError(`Resume Statement are allowed only inside of "handle" block`)
   },
 
   CallExpression(path) {
@@ -263,11 +256,13 @@ traverse.default(ast, {
     ) // let handleEffect
 
     const handleEffectMethod = (
-      t.objectMethod(
-        'method',
-        t.Identifier('handle'),
-        [node.handleEffects.param, t.Identifier('next')],
-        node.handleEffects.body
+      t.objectProperty(
+        t.identifier('handle'),
+        t.arrowFunctionExpression(
+          [node.handleEffects.param, t.Identifier('next')],
+          node.handleEffects.body,
+          true
+        )
       )
     )
 
@@ -311,6 +306,44 @@ traverse.default(ast, {
         ])
       )
     )
+
+    // Nested traverse to evaluate the resume statement inside of handle method
+    path.traverse({
+      ObjectProperty(path) {
+        const { node } = path
+
+        if (node.key.name !== 'handle') {
+          return
+        }
+
+        path.traverse({
+          CallExpression(path) {
+            path.traverse({
+              ResumeStatement(path) {
+                throw new TypeError(`Resume Statement must be in handle block directly`)
+              }
+            })
+
+            path.stop()
+          },
+
+          ResumeStatement(path) {
+            const { node } = path
+
+            const callNextWithArgs = (
+              t.callExpression(
+                t.identifier('next'),
+                [node.argument]
+              )
+            ) // next(args)
+
+            path.replaceWith(callNextWithArgs)
+          },
+        })
+
+        path.stop()
+      },
+    })
   }
 })
 

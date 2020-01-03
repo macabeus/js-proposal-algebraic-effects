@@ -14,6 +14,12 @@ function displayNameCapitalized(user) {
   return nameUpperCase
 }
 
+function wait(time) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, time);
+  });
+}
+
 const arya = { name: null };
 const gendry = { name: 'Gendry' };
 
@@ -24,8 +30,7 @@ try {
   console.log('Gendry name:', gendryName)
 } handle (effect) {
   if (effect === 'ask_name') {
-    setTimeout(() => {
-      resume 'Arya Stark';
-   }, 1000);
+    await wait(1000);
+    resume 'Arya Stark';
   }
 }
