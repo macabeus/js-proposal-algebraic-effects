@@ -698,7 +698,9 @@ export default class StatementParser extends ExpressionParser {
       clause.param = this.parseBindingAtom();
       this.next();
 
-      clause.body = this.parseBlock();
+      this.scope.inHandleBlock = true;
+      clause.body = this.parseBlock(false, false);
+      this.scope.inHandleBlock = false;
       this.scope.exit();
 
       node.handleEffects = this.finishNode(clause, "HandleEffectClause");

@@ -49,6 +49,8 @@ export default class ScopeHandler<IScope: Scope = Scope> {
     this.inModule = inModule;
   }
 
+  inHandleBlock = false;
+
   get inFunction() {
     return (this.currentVarScope().flags & SCOPE_FUNCTION) > 0;
   }
