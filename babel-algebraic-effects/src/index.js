@@ -266,8 +266,8 @@ traverse.default(ast, {
       t.objectMethod(
         'method',
         t.Identifier('handle'),
-        [t.Identifier('effect'), t.Identifier('next')],
-        node.handleEffects
+        [node.handleEffects.param, t.Identifier('next')],
+        node.handleEffects.body
       )
     )
 
