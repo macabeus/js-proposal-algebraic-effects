@@ -163,24 +163,41 @@ traverse.default(ast, {
       )
     ) // this.handle(args)
 
+    // TODO: It should be put as a helper, but, for some unknown reason, I can't use this.addHelper here
+    const checkIfThereIsHandleFunction = t.conditionalExpression(
+      thisMember('handle'),
+      t.booleanLiteral(true),
+      selfInvokingFunctions(
+        t.blockStatement([
+          t.throwStatement(t.newExpression(t.identifier('Error'), [t.stringLiteral('Unhandled effect')]))
+        ])
+      )
+    )
+    const safeThisHandleCall = thisHandleCall => (
+      t.sequenceExpression([
+        checkIfThereIsHandleFunction,
+        thisHandleCall,
+      ])
+    )
+
     const mapPerformExpressionWhenInsideOf = {
       AssignmentExpression: () => {
         path.parentPath.replaceWithMultiple([
-          thisHandleCall([path.parentPath.node.left]),
+          safeThisHandleCall(thisHandleCall([path.parentPath.node.left])),
           t.returnStatement()
         ])
       },
 
       ExpressionStatement: () => {
         path.replaceWithMultiple([
-          thisHandleCall([]),
+          safeThisHandleCall(thisHandleCall([])),
           t.returnStatement()
         ])
       },
 
       VariableDeclarator: () => {
         path.parentPath.parentPath.replaceWithMultiple([
-          thisHandleCall([path.parentPath.node.id]),
+          safeThisHandleCall(thisHandleCall([path.parentPath.node.id])),
           t.returnStatement()
         ])
       }
